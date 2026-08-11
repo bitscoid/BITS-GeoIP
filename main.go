@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -9,22 +10,29 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
-	"github.com/google/go-github/v45/github"
-	"github.com/maxmind/mmdbwriter"
-	"github.com/maxmind/mmdbwriter/inserter"
-	"github.com/maxmind/mmdbwriter/mmdbtype"
-	"github.com/oschwald/geoip2-golang"
-	"github.com/oschwald/maxminddb-golang"
 	"github.com/sagernet/sing-box/common/srs"
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/log"
 	"github.com/sagernet/sing-box/option"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
+
+	"github.com/google/go-github/v64/github"
+	"github.com/maxmind/mmdbwriter"
+	"github.com/maxmind/mmdbwriter/inserter"
+	"github.com/maxmind/mmdbwriter/mmdbtype"
+	"github.com/oschwald/geoip2-golang"
+	"github.com/oschwald/maxminddb-golang"
 )
 
-var githubClient *github.Client
+var (
+	githubClient *github.Client
+	httpClient   = &http.Client{
+		Timeout: 10 * time.Minute,
+	}
+)
 
 func init() {
 	accessToken, loaded := os.LookupEnv("ACCESS_TOKEN")
@@ -58,12 +66,25 @@ func fetch(from string) (*github.RepositoryRelease, error) {
 
 func get(downloadURL *string) ([]byte, error) {
 	log.Info("download ", *downloadURL)
-	response, err := http.Get(*downloadURL)
-	if err != nil {
-		return nil, err
+	var lastErr error
+	for i := 0; i < 3; i++ {
+		response, err := httpClient.Get(*downloadURL)
+		if err != nil {
+			lastErr = err
+			log.Warn("download attempt ", i+1, " failed: ", err)
+			time.Sleep(time.Duration(i+1) * time.Second)
+			continue
+		}
+		defer response.Body.Close()
+		if response.StatusCode != http.StatusOK {
+			lastErr = E.New("download ", *downloadURL, " failed with status ", response.Status)
+			log.Warn("download attempt ", i+1, " failed: ", lastErr)
+			time.Sleep(time.Duration(i+1) * 2 * time.Second)
+			continue
+		}
+		return io.ReadAll(response.Body)
 	}
-	defer response.Body.Close()
-	return io.ReadAll(response.Body)
+	return nil, lastErr
 }
 
 func download(release *github.RepositoryRelease) ([]byte, error) {
@@ -91,7 +112,7 @@ func parse(binary []byte) (metadata maxminddb.Metadata, countryMap map[string][]
 		if err != nil {
 			return
 		}
-		// idk why
+		// Country codes must be lowercase per sing-box convention.
 		code := strings.ToLower(country.RegisteredCountry.IsoCode)
 		countryMap[code] = append(countryMap[code], ipNet)
 	}
@@ -108,24 +129,6 @@ func newWriter(metadata maxminddb.Metadata, codes []string) (*mmdbwriter.Tree, e
 		Inserter:                inserter.ReplaceWith,
 		DisableIPv4Aliasing:     true,
 		IncludeReservedNetworks: true,
-	})
-}
-
-func open(path string, codes []string) (*mmdbwriter.Tree, error) {
-	reader, err := maxminddb.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	if reader.Metadata.DatabaseType != "sing-geoip" {
-		return nil, E.New("invalid sing-geoip database")
-	}
-	reader.Close()
-
-	return mmdbwriter.Load(path, mmdbwriter.Options{
-		Languages: append(reader.Metadata.Languages, common.Filter(codes, func(it string) bool {
-			return !common.Contains(reader.Metadata.Languages, it)
-		})...),
-		Inserter: inserter.ReplaceWith,
 	})
 }
 
@@ -198,11 +201,11 @@ func release(source string, destination string, output string, ruleSetOutput str
 		return err
 	}
 
-	writer, err = newWriter(metadata, []string{"cn"})
+	writer, err = newWriter(metadata, []string{"id"})
 	if err != nil {
 		return err
 	}
-	err = write(writer, countryMap, "geoip-cn.db", []string{"cn"})
+	err = write(writer, countryMap, "geoip-id.db", []string{"id"})
 	if err != nil {
 		return err
 	}
@@ -226,12 +229,12 @@ func release(source string, destination string, output string, ruleSetOutput str
 			},
 		}
 		srsPath, _ := filepath.Abs(filepath.Join(ruleSetOutput, "geoip-"+countryCode+".srs"))
-		os.Stderr.WriteString("write " + srsPath + "\n")
+		log.Info("write ", srsPath)
 		outputRuleSet, err := os.Create(srsPath)
 		if err != nil {
 			return err
 		}
-		err = srs.Write(outputRuleSet, plainRuleSet)
+		err = srs.Write(outputRuleSet, plainRuleSet, C.RuleSetVersionCurrent)
 		if err != nil {
 			outputRuleSet.Close()
 			return err
@@ -244,7 +247,18 @@ func release(source string, destination string, output string, ruleSetOutput str
 }
 
 func setActionOutput(name string, content string) {
-	os.Stdout.WriteString("::set-output name=" + name + "::" + content + "\n")
+	ghOutput := os.Getenv("GITHUB_OUTPUT")
+	if ghOutput == "" {
+		log.Warn("GITHUB_OUTPUT not set, skipping output: ", name)
+		return
+	}
+	f, err := os.OpenFile(ghOutput, os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		log.Warn("failed to open GITHUB_OUTPUT: ", err)
+		return
+	}
+	defer f.Close()
+	fmt.Fprintf(f, "%s=%s\n", name, content)
 }
 
 func main() {

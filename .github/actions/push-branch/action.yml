@@ -1,0 +1,43 @@
+name: "Push files to branch"
+description: "Force-push generated files to a dedicated branch"
+inputs:
+  branch:
+    description: "Target branch name"
+    required: true
+  files:
+    description: "Newline-separated list of files/directories to publish"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Sync files to branch
+      shell: bash
+      env:
+        BRANCH: ${{ inputs.branch }}
+        FILES: ${{ inputs.files }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        git config --global --add safe.directory '*'
+        workdir="_publish_${BRANCH}"
+        rm -rf "$workdir"
+        mkdir -p "$workdir"
+        cd "$workdir"
+        git init -q
+        git config --local user.email "github-action@users.noreply.github.com"
+        git config --local user.name "GitHub Action"
+        git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        git checkout -B "$BRANCH"
+        cd ..
+        while IFS= read -r src; do
+          [ -n "${src}" ] || continue
+          cp -r "$src" "$workdir"/
+        done <<<"$FILES"
+        cd "$workdir"
+        git add -A
+        if git diff --cached --quiet; then
+          echo "No changes to publish on $BRANCH"
+          exit 0
+        fi
+        git commit -m "Update $BRANCH"
+        git push -f origin "$BRANCH"

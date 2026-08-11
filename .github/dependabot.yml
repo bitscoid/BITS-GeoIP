@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "dependabot"
+      include: "scope"
+    open-pull-requests-limit: 10
+    groups:
+      go-modules:
+        patterns:
+          - "github.com/sagernet/*"
+          - "github.com/maxmind/*"
+          - "github.com/oschwald/*"
+          - "github.com/google/go-github/*"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
