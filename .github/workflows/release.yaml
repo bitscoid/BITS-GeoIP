@@ -9,6 +9,8 @@ on:
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
+permissions:
+  contents: write
 jobs:
   build:
     name: Build
@@ -28,13 +30,13 @@ jobs:
       - name: Run lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v2.12.2
 
       - name: Build geoip
         id: build
         run: go run -v .
         env:
-          FIXED_RELEASE: ${{ github.event.inputs.tag }}
+          FIXED_RELEASE: ${{ inputs.tag }}
 
       - name: Generate sha256 hash
         if: steps.build.outputs.skip != 'true'
@@ -81,3 +83,4 @@ jobs:
             geoip.db.sha256sum
             geoip-id.db
             geoip-id.db.sha256sum
+            rule-set.tar.gz

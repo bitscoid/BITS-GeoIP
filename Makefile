@@ -19,8 +19,8 @@ test:
 	go test -v ./...
 
 build:
-	go build -o sing-geoip .
+	go build -o bits-geoip .
 
 clean:
-	rm -f sing-geoip geoip.db geoip-id.db *.sha256sum
+	rm -f bits-geoip sing-geoip geoip.db geoip-id.db *.sha256sum
 	rm -rf rule-set release _push

@@ -40,4 +40,4 @@ runs:
           exit 0
         fi
         git commit -m "Update $BRANCH"
-        git push -f origin "$BRANCH"
+        git push --force origin "$BRANCH"

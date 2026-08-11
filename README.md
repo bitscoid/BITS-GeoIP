@@ -1,8 +1,8 @@
-# sing-geoip
+# BITS-GeoIP
 
 Builds GeoIP databases and sing-box rule sets from the latest `Country.mmdb` release published by [`Dreamacro/maxmind-geoip`](https://github.com/Dreamacro/maxmind-geoip).
 
-Generated data targets [`sing-box`](https://github.com/SagerNet/sing-box) and is published through the `SagerNet/sing-geoip` `release` and `rule-set` branches, plus GitHub Releases.
+Generated data targets [`sing-box`](https://github.com/SagerNet/sing-box) and is published by [`bitscoid/BITS-GeoIP`](https://github.com/bitscoid/BITS-GeoIP) through the `release` and `rule-set` branches, plus GitHub Releases.
 
 ## Generated Files
 
@@ -32,7 +32,7 @@ Build the executable instead:
 
 ```bash
 make build
-./sing-geoip
+./bits-geoip
 ```
 
 Force a build even when the destination already contains the upstream release:
@@ -63,7 +63,7 @@ Generated databases and rule sets are ignored by Git through [`.gitignore`](.git
 make fmt          # Format Go source files.
 make lint         # Run golangci-lint.
 make test         # Run Go package tests.
-make build        # Build the sing-geoip executable.
+make build        # Build the BITS-GeoIP executable.
 make clean        # Remove generated databases, rule sets, and build artifacts.
 ```
 
@@ -105,9 +105,14 @@ make fmt_install
 4. Publishes rule sets to branch `rule-set`.
 5. Publishes databases and checksums to branch `release`.
 6. Keeps the three latest GitHub Releases.
-7. Publishes `geoip.db`, `geoip-id.db`, and their checksums as GitHub Release assets.
+7. Publishes databases, checksums, and `rule-set.tar.gz` as GitHub Release assets.
 
 Manual releases can provide an upstream tag through the workflow `tag` input.
+
+Published branches:
+
+- [`release`](https://github.com/bitscoid/BITS-GeoIP/tree/release) — generated databases and checksums.
+- [`rule-set`](https://github.com/bitscoid/BITS-GeoIP/tree/rule-set) — generated sing-box rule sets.
 
 ## Dependency Updates
 

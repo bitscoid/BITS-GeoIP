@@ -49,14 +49,19 @@ func init() {
 func fetch(from string) (*github.RepositoryRelease, error) {
 	fixedRelease := os.Getenv("FIXED_RELEASE")
 	names := strings.SplitN(from, "/", 2)
+	if len(names) != 2 || names[0] == "" || names[1] == "" {
+		return nil, E.New("invalid GitHub repository: ", from)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
 	if fixedRelease != "" {
-		latestRelease, _, err := githubClient.Repositories.GetReleaseByTag(context.Background(), names[0], names[1], fixedRelease)
+		latestRelease, _, err := githubClient.Repositories.GetReleaseByTag(ctx, names[0], names[1], fixedRelease)
 		if err != nil {
 			return nil, err
 		}
 		return latestRelease, err
 	} else {
-		latestRelease, _, err := githubClient.Repositories.GetLatestRelease(context.Background(), names[0], names[1])
+		latestRelease, _, err := githubClient.Repositories.GetLatestRelease(ctx, names[0], names[1])
 		if err != nil {
 			return nil, err
 		}
@@ -75,14 +80,22 @@ func get(downloadURL *string) ([]byte, error) {
 			time.Sleep(time.Duration(i+1) * time.Second)
 			continue
 		}
-		defer response.Body.Close()
 		if response.StatusCode != http.StatusOK {
 			lastErr = E.New("download ", *downloadURL, " failed with status ", response.Status)
+			response.Body.Close()
 			log.Warn("download attempt ", i+1, " failed: ", lastErr)
 			time.Sleep(time.Duration(i+1) * 2 * time.Second)
 			continue
 		}
-		return io.ReadAll(response.Body)
+		body, readErr := io.ReadAll(response.Body)
+		response.Body.Close()
+		if readErr != nil {
+			lastErr = readErr
+			log.Warn("download attempt ", i+1, " failed: ", readErr)
+			time.Sleep(time.Duration(i+1) * time.Second)
+			continue
+		}
+		return body, nil
 	}
 	return nil, lastErr
 }
@@ -114,6 +127,9 @@ func parse(binary []byte) (metadata maxminddb.Metadata, countryMap map[string][]
 		}
 		// Country codes must be lowercase per sing-box convention.
 		code := strings.ToLower(country.RegisteredCountry.IsoCode)
+		if code == "" {
+			continue
+		}
 		countryMap[code] = append(countryMap[code], ipNet)
 	}
 	err = networks.Err()
@@ -262,7 +278,7 @@ func setActionOutput(name string, content string) {
 }
 
 func main() {
-	err := release("Dreamacro/maxmind-geoip", "sagernet/sing-geoip", "geoip.db", "rule-set")
+	err := release("Dreamacro/maxmind-geoip", "bitscoid/BITS-GeoIP", "geoip.db", "rule-set")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-module github.com/sagernet/sing-geoip
+module github.com/bitscoid/BITS-GeoIP
 
 go 1.25.0
 
