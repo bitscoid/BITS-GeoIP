@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -33,6 +34,18 @@ var (
 		Timeout: 10 * time.Minute,
 	}
 )
+
+var providerRuleSets = map[string]string{
+	"cloudflare": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/cloudflare.srs",
+	"cloudfront": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/cloudfront.srs",
+	"facebook":   "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/facebook.srs",
+	"fastly":     "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/fastly.srs",
+	"google":     "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/google.srs",
+	"netflix":    "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/netflix.srs",
+	"telegram":   "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/telegram.srs",
+	"tor":        "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/tor.srs",
+	"twitter":    "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/twitter.srs",
+}
 
 func init() {
 	accessToken, loaded := os.LookupEnv("ACCESS_TOKEN")
@@ -108,6 +121,33 @@ func download(release *github.RepositoryRelease) ([]byte, error) {
 		return nil, E.New("Country.mmdb not found in upstream release ", release.Name)
 	}
 	return get(geoipAsset.BrowserDownloadURL)
+}
+
+func downloadProviderRuleSets(output string) error {
+	if err := os.MkdirAll(output, 0o755); err != nil {
+		return err
+	}
+	names := make([]string, 0, len(providerRuleSets))
+	for name := range providerRuleSets {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		url := providerRuleSets[name]
+		data, err := get(&url)
+		if err != nil {
+			return E.New("download provider rule set ", name, ": ", err)
+		}
+		if !bytes.HasPrefix(data, []byte("SRS\x01")) {
+			return E.New("invalid provider rule set ", name)
+		}
+		path := filepath.Join(output, "provider-"+name+".srs")
+		if err := os.WriteFile(path, data, 0o644); err != nil {
+			return err
+		}
+		log.Info("write ", path)
+	}
+	return nil
 }
 
 func parse(binary []byte) (metadata maxminddb.Metadata, countryMap map[string][]*net.IPNet, err error) {
@@ -256,6 +296,9 @@ func release(source string, destination string, output string, ruleSetOutput str
 			return err
 		}
 		outputRuleSet.Close()
+	}
+	if err := downloadProviderRuleSets(ruleSetOutput); err != nil {
+		return err
 	}
 
 	setActionOutput("tag", *sourceRelease.Name)

@@ -11,8 +11,18 @@ Generated data targets [`sing-box`](https://github.com/SagerNet/sing-box) and is
 | `geoip.db` | Complete country GeoIP database in MMDB format. |
 | `geoip-id.db` | Indonesia-only GeoIP database. |
 | `rule-set/geoip-<CC>.srs` | sing-box binary rule set for country code `<CC>`. |
+| `rule-set/provider-<name>.srs` | Provider rule set sourced from `Loyalsoldier/geoip`. |
 
 `<CC>` uses lowercase ISO 3166-1 alpha-2 country codes, for example `id`, `us`, and `sg`.
+
+Provider rule sets currently include:
+
+```text
+cloudflare  cloudfront  facebook  fastly  google
+netflix     telegram    tor       twitter
+```
+
+Provider files are downloaded from the [`Loyalsoldier/geoip` SRS release branch](https://github.com/Loyalsoldier/geoip/tree/release/srs). They are kept separate from country data because provider networks can span multiple countries.
 
 ## Requirements
 
@@ -81,7 +91,8 @@ make fmt_install
 4. Generate `geoip.db` for all countries.
 5. Generate `geoip-id.db` for Indonesia.
 6. Generate one `.srs` rule set per country.
-7. Expose the source release tag to GitHub Actions through `GITHUB_OUTPUT`.
+7. Download and validate provider `.srs` rule sets.
+8. Expose the source release tag to GitHub Actions through `GITHUB_OUTPUT`.
 
 ## GitHub Actions
 
@@ -92,8 +103,8 @@ make fmt_install
 1. Checks out the repository.
 2. Installs the Go version from `go.mod`.
 3. Runs golangci-lint.
-4. Builds `geoip.db` with `NO_SKIP=true`.
-5. Uploads `geoip.db` as a workflow artifact.
+4. Builds all country, Indonesia, and provider outputs with `NO_SKIP=true`.
+5. Uploads databases and the complete `rule-set/` directory as a workflow artifact.
 
 ### Release workflow
 
@@ -105,7 +116,7 @@ make fmt_install
 4. Publishes rule sets to branch `rule-set`.
 5. Publishes databases and checksums to branch `release`.
 6. Keeps the three latest GitHub Releases.
-7. Publishes databases, checksums, and `rule-set.tar.gz` as GitHub Release assets.
+7. Publishes databases, checksums, provider rule sets, `rule-set.tar.gz`, and its checksum as GitHub Release assets.
 
 Manual releases can provide an upstream tag through the workflow `tag` input.
 
