@@ -1,0 +1,6 @@
+/.idea/
+/vendor/
+/*.db
+*.mmdb
+/rule-set/
+/release/
