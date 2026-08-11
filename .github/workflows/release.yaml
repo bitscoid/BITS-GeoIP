@@ -3,7 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "The tag version you want to build"
+        description: "Optional upstream release tag, e.g. v2026.08.0. Leave empty for latest."
+        required: false
+        type: string
+        default: ""
   schedule:
     - cron: "0 8 12 * *"
 concurrency:
