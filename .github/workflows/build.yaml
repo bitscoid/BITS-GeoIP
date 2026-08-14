@@ -41,5 +41,5 @@ jobs:
           if-no-files-found: error
           path: |
             geoip.db
-            geoip-id.db
+            geoip-min.db
             rule-set/

@@ -22,5 +22,5 @@ build:
 	go build -o bits-geoip .
 
 clean:
-	rm -f bits-geoip sing-geoip geoip.db geoip-id.db *.sha256sum
+	rm -f bits-geoip sing-geoip geoip.db geoip-min.db *.sha256sum
 	rm -rf rule-set release _push
