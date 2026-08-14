@@ -257,15 +257,6 @@ func release(source string, destination string, output string, ruleSetOutput str
 		return err
 	}
 
-	writer, err = newWriter(metadata, []string{"id"})
-	if err != nil {
-		return err
-	}
-	err = write(writer, countryMap, "geoip-id.db", []string{"id"})
-	if err != nil {
-		return err
-	}
-
 	// Minimal database: only the "id" category, consumed by BITS Box default
 	// routes (Indonesia IP bypass). Keeps the bundled APK asset small.
 	writer, err = newWriter(metadata, []string{"id"})

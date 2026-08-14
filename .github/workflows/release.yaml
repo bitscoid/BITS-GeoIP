@@ -51,7 +51,6 @@ jobs:
         if: steps.build.outputs.skip != 'true'
         run: |
           sha256sum geoip.db > geoip.db.sha256sum
-          sha256sum geoip-id.db > geoip-id.db.sha256sum
           sha256sum geoip-min.db > geoip-min.db.sha256sum
           tar czf rule-set.tar.gz rule-set
           sha256sum rule-set.tar.gz > rule-set.tar.gz.sha256sum
@@ -74,8 +73,6 @@ jobs:
           files: |
             geoip.db
             geoip.db.sha256sum
-            geoip-id.db
-            geoip-id.db.sha256sum
             geoip-min.db
             geoip-min.db.sha256sum
 
@@ -95,8 +92,6 @@ jobs:
           files: |
             geoip.db
             geoip.db.sha256sum
-            geoip-id.db
-            geoip-id.db.sha256sum
             geoip-min.db
             geoip-min.db.sha256sum
             rule-set/provider-*.srs
