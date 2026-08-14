@@ -7,6 +7,11 @@ on:
         required: false
         type: string
         default: ""
+      force:
+        description: Force rebuild (ignore already-latest skip)
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: "0 8 12 * *"
 concurrency:
@@ -40,12 +45,14 @@ jobs:
         run: go run -v .
         env:
           FIXED_RELEASE: ${{ inputs.tag }}
+          NO_SKIP: ${{ inputs.force }}
 
       - name: Generate sha256 hash
         if: steps.build.outputs.skip != 'true'
         run: |
           sha256sum geoip.db > geoip.db.sha256sum
           sha256sum geoip-id.db > geoip-id.db.sha256sum
+          sha256sum geoip-min.db > geoip-min.db.sha256sum
           tar czf rule-set.tar.gz rule-set
           sha256sum rule-set.tar.gz > rule-set.tar.gz.sha256sum
 
@@ -69,6 +76,8 @@ jobs:
             geoip.db.sha256sum
             geoip-id.db
             geoip-id.db.sha256sum
+            geoip-min.db
+            geoip-min.db.sha256sum
 
       - name: Delete older releases
         if: steps.build.outputs.skip != 'true'
@@ -88,6 +97,8 @@ jobs:
             geoip.db.sha256sum
             geoip-id.db
             geoip-id.db.sha256sum
+            geoip-min.db
+            geoip-min.db.sha256sum
             rule-set/provider-*.srs
             rule-set.tar.gz
             rule-set.tar.gz.sha256sum
