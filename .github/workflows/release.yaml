@@ -47,12 +47,20 @@ jobs:
           FIXED_RELEASE: ${{ inputs.tag }}
           NO_SKIP: ${{ inputs.force }}
 
+      - name: Package rule sets
+        if: steps.build.outputs.skip != 'true'
+        run: |
+          cd rule-set && zip -r ../geoip-rule-set.zip . && cd ..
       - name: Generate sha256 hash
         if: steps.build.outputs.skip != 'true'
         run: |
           sha256sum geoip.db > geoip.db.sha256sum
           sha256sum geoip-min.db > geoip-min.db.sha256sum
-          cd rule-set && sha256sum *.srs > rule-set.sha256sum && cd ..
+          sha256sum geoip-rule-set.zip > geoip-rule-set.zip.sha256sum
+      - name: Generate sha256 hash for minimal rule sets
+        if: steps.build.outputs.skip != 'true'
+        run: |
+          cd rule-set && sha256sum geoip-id.srs > minimal.sha256sum && cd ..
       - name: Push rule-set branch
         if: steps.build.outputs.skip != 'true'
         uses: ./.github/actions/push-branch
@@ -60,6 +68,8 @@ jobs:
           branch: rule-set
           files: |
             rule-set
+            geoip-rule-set.zip
+            geoip-rule-set.zip.sha256sum
       - name: Push release branch
         if: steps.build.outputs.skip != 'true'
         uses: ./.github/actions/push-branch
@@ -86,6 +96,7 @@ jobs:
             geoip.db.sha256sum
             geoip-min.db
             geoip-min.db.sha256sum
-            rule-set/geoip-*.srs
-            rule-set/provider-*.srs
-            rule-set/rule-set.sha256sum
+            geoip-rule-set.zip
+            geoip-rule-set.zip.sha256sum
+            rule-set/geoip-id.srs
+            rule-set/minimal.sha256sum
