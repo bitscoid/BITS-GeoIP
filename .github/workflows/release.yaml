@@ -52,9 +52,7 @@ jobs:
         run: |
           sha256sum geoip.db > geoip.db.sha256sum
           sha256sum geoip-min.db > geoip-min.db.sha256sum
-          tar czf rule-set.tar.gz rule-set
-          sha256sum rule-set.tar.gz > rule-set.tar.gz.sha256sum
-
+          cd rule-set && sha256sum *.srs > rule-set.sha256sum && cd ..
       - name: Push rule-set branch
         if: steps.build.outputs.skip != 'true'
         uses: ./.github/actions/push-branch
@@ -62,9 +60,6 @@ jobs:
           branch: rule-set
           files: |
             rule-set
-            rule-set.tar.gz
-            rule-set.tar.gz.sha256sum
-
       - name: Push release branch
         if: steps.build.outputs.skip != 'true'
         uses: ./.github/actions/push-branch
@@ -75,15 +70,12 @@ jobs:
             geoip.db.sha256sum
             geoip-min.db
             geoip-min.db.sha256sum
-
-      - name: Delete older releases
+      - uses: dev-drprasad/delete-older-releases@v0.3.4
         if: steps.build.outputs.skip != 'true'
-        uses: dev-drprasad/delete-older-releases@v0.3.4
         with:
           keep_latest: 3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Release geoip
         if: steps.build.outputs.skip != 'true'
         uses: softprops/action-gh-release@v3
@@ -94,6 +86,6 @@ jobs:
             geoip.db.sha256sum
             geoip-min.db
             geoip-min.db.sha256sum
+            rule-set/geoip-*.srs
             rule-set/provider-*.srs
-            rule-set.tar.gz
-            rule-set.tar.gz.sha256sum
+            rule-set/rule-set.sha256sum

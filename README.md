@@ -45,8 +45,6 @@ through GitHub Releases plus the `release` and `rule-set` branches.
 | `geoip-min.db.sha256sum` | SHA-256 checksum of the minimal database. |
 | `rule-set/geoip-<cc>.srs` | sing-box binary rule set per country code. |
 | `rule-set/provider-<name>.srs` | Provider rule sets (cloudflare, google, ...). |
-| `rule-set.tar.gz` | Archive of all generated rule sets. |
-| `rule-set.tar.gz.sha256sum` | SHA-256 checksum of the archive. |
 
 `<cc>` uses lowercase ISO 3166-1 alpha-2 country codes, e.g. `id`, `us`, `sg`.
 
@@ -166,8 +164,7 @@ dispatch. It:
 3. Publishes rule sets to branch `rule-set`.
 4. Publishes databases and checksums to branch `release`.
 5. Keeps the **three latest** GitHub Releases.
-6. Publishes databases, checksums, provider rule sets, `rule-set.tar.gz`, and
-   its checksum as release assets.
+6. Publishes databases, checksums, and individual `.srs` rule set files (country + provider) as release assets.
 
 Manual releases can provide an upstream tag through the workflow `tag` input,
 or force a rebuild with the `force` input (passes `NO_SKIP=true`).
