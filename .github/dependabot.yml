@@ -15,6 +15,16 @@ updates:
           - "github.com/maxmind/*"
           - "github.com/oschwald/*"
           - "github.com/google/go-github/*"
+    ignore:
+      # sing-box pre-releases (beta/rc/dev) emit rule-set format version 5
+      # which our pinned core v1.13.x cannot read (max v4). Skip pre-releases so
+      # dependabot only proposes stable bumps.
+      - dependency-name: "github.com/sagernet/sing-box"
+        versions:
+          - "*-dev.*"
+          - "*-rc.*"
+          - "*-beta.*"
+          - "*-alpha.*"
     labels:
       - "dependencies"
 
