@@ -1,14 +1,14 @@
 module github.com/bitscoid/BITS-GeoIP
 
-go 1.25.0
+go 1.25.5
 
 require (
 	github.com/google/go-github/v64 v64.0.0
 	github.com/maxmind/mmdbwriter v1.2.0
 	github.com/oschwald/geoip2-golang v1.13.0
 	github.com/oschwald/maxminddb-golang v1.13.1
-	github.com/sagernet/sing v0.8.13
-	github.com/sagernet/sing-box v1.13.19
+	github.com/sagernet/sing v0.9.0
+	github.com/sagernet/sing-box v1.14.0
 )
 
 require (
