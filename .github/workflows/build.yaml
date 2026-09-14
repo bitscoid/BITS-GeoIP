@@ -43,3 +43,4 @@ jobs:
             geoip.db
             geoip-min.db
             rule-set/
+          retention-days: 1
