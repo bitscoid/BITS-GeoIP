@@ -17,8 +17,8 @@ github.com/oschwald/maxminddb-golang v1.13.1 h1:G3wwjdN9JmIK2o/ermkHM+98oX5fS+k5
 github.com/oschwald/maxminddb-golang v1.13.1/go.mod h1:K4pgV9N/GcK694KSTmVSDTODk4IsCNThNdTmnaBZ/F8=
 github.com/oschwald/maxminddb-golang/v2 v2.5.0 h1:WvEHCE8HwFS5pKWhW8nvvRxNzczuRUOGBLn2L03VlEQ=
 github.com/oschwald/maxminddb-golang/v2 v2.5.0/go.mod h1:EBnvLGgY+aSckqcgyfB5LPDviqaWdMZPBDwu8c2jJbs=
-github.com/sagernet/sing v0.9.0 h1:NQvJxtYEl+2uIh/Bkxf5cqAZfZuFCQKQe2z85Pbfxag=
-github.com/sagernet/sing v0.9.0/go.mod h1:K3Owt3xPhHugvlnlPPxZJ/exXdaJfEPOTNorGk4AXjo=
+github.com/sagernet/sing v0.9.4 h1:nIdH+Yvy4NzTezB+c3z/9of1jLRggnrtMtb3uMOIaNM=
+github.com/sagernet/sing v0.9.4/go.mod h1:K3Owt3xPhHugvlnlPPxZJ/exXdaJfEPOTNorGk4AXjo=
 github.com/sagernet/sing-box v1.14.0 h1:c2x4MxM4ZJ2i11W2UiAeRJULJDSeOAF/W7Wl5F7eORg=
 github.com/sagernet/sing-box v1.14.0/go.mod h1:CN1I6jgtUwF1ON5dmUrq9JVdKFXrhY4scZyjE1rihs8=
 github.com/stretchr/testify v1.12.0 h1:K6Mr6jO9JICuend/5xzTM03ydSV3vdNRYAdPSukj8uI=
