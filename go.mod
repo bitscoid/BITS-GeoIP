@@ -8,7 +8,7 @@ require (
 	github.com/oschwald/geoip2-golang v1.13.0
 	github.com/oschwald/maxminddb-golang v1.13.1
 	github.com/sagernet/sing v0.9.4
-	github.com/sagernet/sing-box v1.14.0
+	github.com/sagernet/sing-box v1.14.1
 )
 
 require (

@@ -19,8 +19,8 @@ github.com/oschwald/maxminddb-golang/v2 v2.5.0 h1:WvEHCE8HwFS5pKWhW8nvvRxNzczuRU
 github.com/oschwald/maxminddb-golang/v2 v2.5.0/go.mod h1:EBnvLGgY+aSckqcgyfB5LPDviqaWdMZPBDwu8c2jJbs=
 github.com/sagernet/sing v0.9.4 h1:nIdH+Yvy4NzTezB+c3z/9of1jLRggnrtMtb3uMOIaNM=
 github.com/sagernet/sing v0.9.4/go.mod h1:K3Owt3xPhHugvlnlPPxZJ/exXdaJfEPOTNorGk4AXjo=
-github.com/sagernet/sing-box v1.14.0 h1:c2x4MxM4ZJ2i11W2UiAeRJULJDSeOAF/W7Wl5F7eORg=
-github.com/sagernet/sing-box v1.14.0/go.mod h1:CN1I6jgtUwF1ON5dmUrq9JVdKFXrhY4scZyjE1rihs8=
+github.com/sagernet/sing-box v1.14.1 h1:LumpcrArE3cxXYxoKhNN4yOQq1TeaEEuKWHCokodO9M=
+github.com/sagernet/sing-box v1.14.1/go.mod h1:PrCZZGTXK5PtbNkAuQI4SiFHl0A3GJBpmqEbn39b8bQ=
 github.com/stretchr/testify v1.12.0 h1:K6Mr6jO9JICuend/5xzTM03ydSV3vdNRYAdPSukj8uI=
 github.com/stretchr/testify v1.12.0/go.mod h1:bOYBZb5qJ00vPzWfIqBUZPaxK8jWiXc6d3ErP4Ca9Gw=
 go4.org/netipx v0.0.0-20231129151722-fdeea329fbba h1:0b9z3AuHCjxk0x/opv64kcgZLBseWJUpBw5I82+2U4M=
